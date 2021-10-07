@@ -10,12 +10,6 @@ pub struct Migadu {
     client: Client,
 }
 
-#[derive(Debug)]
-pub struct Domain {
-    domain: String,
-    mailboxes: Vec<Mailbox>,
-}
-
 impl Migadu {
     pub fn new(username: String, api_key: String) -> Result<Self, Error> {
         Ok(Self {
@@ -23,12 +17,11 @@ impl Migadu {
         })
     }
 
-    pub async fn domain(&mut self, domain: &str) -> Result<Domain, Error> {
-        let mailboxes = self.client.mailboxes(domain).await?;
+    pub async fn mailboxes(&self, domain: &str) -> Result<Vec<Mailbox>, Error> {
+        Ok(self.client.mailboxes(domain).await?)
+    }
 
-        Ok(Domain {
-            domain: domain.to_string(),
-            mailboxes,
-        })
+    pub async fn mailbox(&self, domain: &str, mailbox: &str) -> Result<Mailbox, Error> {
+        Ok(self.client.mailbox(domain, mailbox).await?)
     }
 }

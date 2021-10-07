@@ -7,6 +7,6 @@ async fn main() {
     let api_key = std::env::var("MIGADU_API_KEY").unwrap();
     let domain = std::env::var("MIGADU_API_TEST_DOMAIN").unwrap();
 
-    let mut migadu = migadu::Migadu::new(username, api_key).unwrap();
-    println!("{:#?}", migadu.domain(&domain).await.unwrap());
+    let migadu = migadu::Migadu::new(username, api_key).unwrap();
+    println!("{:#?}", migadu.mailboxes(&domain).await.unwrap());
 }

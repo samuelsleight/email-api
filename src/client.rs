@@ -32,7 +32,7 @@ impl Client {
         })
     }
 
-    fn request(&mut self, method: Method, path: &str) -> Result<RequestBuilder, Error> {
+    fn request(&self, method: Method, path: &str) -> Result<RequestBuilder, Error> {
         Ok(self
             .client
             .request(
@@ -42,7 +42,7 @@ impl Client {
             .basic_auth(&self.username, Some(&self.api_key)))
     }
 
-    pub(crate) async fn mailboxes(&mut self, domain: &str) -> Result<Vec<Mailbox>, Error> {
+    pub(crate) async fn mailboxes(&self, domain: &str) -> Result<Vec<Mailbox>, Error> {
         let response = self
             .request(Method::GET, &format!("domains/{}/mailboxes/", domain))?
             .send()
@@ -58,5 +58,22 @@ impl Client {
             .await
             .map_err(Error::MailboxError)?
             .mailboxes)
+    }
+
+    pub(crate) async fn mailbox(&self, domain: &str, mailbox: &str) -> Result<Mailbox, Error> {
+        let response = self
+            .request(Method::GET, &format!("domains/{}/mailboxes/{}", domain, mailbox))?
+            .send()
+            .await
+            .map_err(Error::MailboxError)?;
+
+        if response.status() != 200 {
+            return Err(Error::NoSuchMailbox);
+        }
+
+        Ok(response
+            .json::<Mailbox>()
+            .await
+            .map_err(Error::MailboxError)?)
     }
 }
