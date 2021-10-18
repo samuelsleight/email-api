@@ -1,3 +1,4 @@
+use email_api::migadu::Migadu;
 use dotenv::dotenv;
 
 #[tokio::main]
@@ -8,6 +9,6 @@ async fn main() {
     let domain = std::env::var("MIGADU_API_TEST_DOMAIN").unwrap();
     let mailbox = std::env::var("MIGADU_API_TEST_MAILBOX").unwrap();
 
-    let migadu = migadu::Migadu::new(username, api_key).unwrap();
+    let migadu = Migadu::new(username, api_key).unwrap();
     println!("{:#?}", migadu.mailbox(&domain, &mailbox).await.unwrap());
 }

@@ -1,12 +1,20 @@
 use reqwest::{Method, RequestBuilder, Url};
-use serde_derive::Deserialize;
+use serde_derive::{Deserialize, Serialize};
 
-use crate::error::Error;
+use super::error::Error;
 
 #[derive(Deserialize, Debug)]
 pub struct Mailbox {
     #[serde(rename(deserialize = "local_part"))]
     name: String,
+}
+
+#[derive(Serialize)]
+struct CreateMailbox<'a> {
+    name: &'a str,
+    local_part: &'a str,
+    password_method: &'a str,
+    password_recovery_email: &'a str,
 }
 
 #[derive(Deserialize)]
@@ -62,7 +70,10 @@ impl Client {
 
     pub(crate) async fn mailbox(&self, domain: &str, mailbox: &str) -> Result<Mailbox, Error> {
         let response = self
-            .request(Method::GET, &format!("domains/{}/mailboxes/{}", domain, mailbox))?
+            .request(
+                Method::GET,
+                &format!("domains/{}/mailboxes/{}", domain, mailbox),
+            )?
             .send()
             .await
             .map_err(Error::MailboxError)?;
@@ -75,5 +86,34 @@ impl Client {
             .json::<Mailbox>()
             .await
             .map_err(Error::MailboxError)?)
+    }
+
+    pub(crate) async fn create_mailbox(
+        &self,
+        domain: &str,
+        mailbox: &str,
+        name: &str,
+        recovery_email: &str,
+    ) -> Result<Mailbox, Error> {
+        let response = self
+            .request(Method::POST, &format!("domains/{}/mailboxes", domain))?
+            .json(&CreateMailbox {
+                name,
+                local_part: mailbox,
+                password_method: "invitation",
+                password_recovery_email: recovery_email,
+            })
+            .send()
+            .await
+            .map_err(Error::MailboxCreationError)?;
+
+        if response.status() != 200 {
+            return Err(Error::NoSuchMailbox);
+        }
+
+        Ok(response
+            .json::<Mailbox>()
+            .await
+            .map_err(Error::MailboxCreationError)?)
     }
 }

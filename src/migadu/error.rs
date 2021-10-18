@@ -14,6 +14,9 @@ pub enum Error {
     #[error("Mailbox does not exist")]
     NoSuchMailbox,
 
+    #[error("Error creating mailbox")]
+    MailboxCreationError(reqwest::Error),
+
     #[error("Error getting mailboxes")]
     MailboxError(reqwest::Error),
 }
