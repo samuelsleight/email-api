@@ -3,7 +3,7 @@ use serde_derive::{Deserialize, Serialize};
 
 use super::error::Error;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Mailbox {
     #[serde(rename(deserialize = "local_part"))]
     name: String,
@@ -17,7 +17,7 @@ struct CreateMailbox<'a> {
     password_recovery_email: &'a str,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 struct Mailboxes {
     mailboxes: Vec<Mailbox>,
 }

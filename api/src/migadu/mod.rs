@@ -1,7 +1,6 @@
-use self::{
-    client::{Client, Mailbox},
-    error::Error
-};
+use self::{client::Client, error::Error};
+
+pub use self::client::Mailbox;
 
 mod client;
 

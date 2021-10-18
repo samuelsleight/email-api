@@ -1,5 +1,5 @@
-use email_api::migadu::Migadu;
 use dotenv::dotenv;
+use email_api::migadu::Migadu;
 
 #[tokio::main]
 async fn main() {
