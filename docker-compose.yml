@@ -1,6 +1,32 @@
-version: '3'
+version: '3.3'
+
+volumes:
+  certs:
+  acme_challenge:
+
 services:
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: ./docker/api/Dockerfile
+    expose: ["8000"]
+
+  server:
+    build:
+      context: ./docker/server
+      dockerfile: Dockerfile
+    volumes:
+      - certs:/etc/letsencrypt/:ro
+      - acme_challenge:/var/www/certbot:ro
     ports:
-      - "80:8000"
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - certs_kickstarter
+
+  certs_kickstarter:
+    build:
+      context: ./docker/certs_kickstarter
+      dockerfile: Dockerfile
+    volumes:
+      - certs:/etc/letsencrypt/
